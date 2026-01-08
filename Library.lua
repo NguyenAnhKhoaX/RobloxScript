@@ -22,7 +22,6 @@ local vu12 = {
         'Crimson Dark',
         'Ember',
         'Neon Crimson',
-        'Neon Orange',
         'Dark Typewriter',
         'VSC Dark High Contrast',
         'Dark',
