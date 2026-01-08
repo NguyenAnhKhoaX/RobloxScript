@@ -1,8 +1,5 @@
 -- ts file was generated at discord.gg/25ms
 
-
-game:GetService('Lighting')
-
 local vu1 = game:GetService('RunService')
 local v2 = game:GetService('Players').LocalPlayer
 local vu3 = game:GetService('UserInputService')
