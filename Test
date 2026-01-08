@@ -1,0 +1,384 @@
+local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/NguyenAnhKhoaX/RobloxScript/refs/heads/main/Library.lua"))()
+
+
+
+    local Window = Fluent:CreateWindow({
+        Title = "Fluent UI - Complete Documentation",
+        SubTitle = "by lostinjob",
+        TabWidth = 160,
+        Size = UDim2.fromOffset(580, 460),
+        Acrylic = false,
+        Theme = "Dark",
+        MinimizeKey = Enum.KeyCode.RightControl
+    })
+
+    local Tabs = {
+        Main = Window:AddTab({ Title = "Main", Icon = "home" }),
+        Elements = Window:AddTab({ Title = "All Elements", Icon = "box" }),
+        Dropdowns = Window:AddTab({ Title = "Dropdowns", Icon = "list" }),
+        Advanced = Window:AddTab({ Title = "Advanced", Icon = "settings" }),
+        Settings = Window:AddTab({ Title = "Settings", Icon = "cog" })
+    }
+
+    local Section1 = Tabs.Main:AddSection("Basic Elements")
+
+    Tabs.Main:AddParagraph({
+        Title = "Documentation Title",
+        Content = "This is a paragraph element for displaying text information. It supports multi-line content and can be updated dynamically."
+    })
+
+    local MyButton = Tabs.Main:AddButton({
+        Title = "Standard Button",
+        Description = "Optional description text",
+        Callback = function()
+            print("Button clicked")
+            Fluent:Notify({
+                Title = "Button",
+                Content = "Button was clicked!",
+                Duration = 3
+            })
+        end
+    })
+
+    local MyToggle = Tabs.Main:AddToggle("UniqueToggleID", {
+        Title = "Toggle Example",
+        Description = "Enable or disable feature",
+        Default = false,
+        Callback = function(Value)
+            print("Toggle state:", Value)
+        end
+    })
+
+    MyToggle:OnChanged(function(Value)
+        print("Toggle changed via OnChanged:", Value)
+    end)
+
+    task.spawn(function()
+        wait(2)
+        MyToggle:SetValue(true)
+        print("Toggle set to true programmatically")
+    end)
+
+    local MySlider = Tabs.Main:AddSlider("UniqueSliderID", {
+        Title = "Slider Example",
+        Description = "Adjust numeric value",
+        Default = 50,
+        Min = 0,
+        Max = 100,
+        Rounding = 1,
+        Callback = function(Value)
+            print("Slider value:", Value)
+        end
+    })
+
+    MySlider:OnChanged(function(Value)
+        print("Slider OnChanged:", Value)
+    end)
+
+    MySlider:SetValue(75)
+
+    local Section2 = Tabs.Elements:AddSection("Input & Display Elements")
+
+    local MyInput = Tabs.Elements:AddInput("UniqueInputID", {
+        Title = "Text Input",
+        Description = "Type anything",
+        Default = "Default text",
+        Placeholder = "Enter text here...",
+        Numeric = false,
+        Finished = true,
+        Callback = function(Value)
+            print("Input value:", Value)
+        end
+    })
+
+    MyInput:OnChanged(function(Value)
+        print("Input OnChanged:", Value)
+    end)
+
+    MyInput:SetValue("New text value")
+
+    local NumericInput = Tabs.Elements:AddInput("NumericInputID", {
+        Title = "Numeric Input",
+        Default = "100",
+        Numeric = true,
+        Finished = false,
+        Callback = function(Value)
+            print("Numeric input:", Value)
+        end
+    })
+
+    local MultilineInput = Tabs.Elements:AddInput("MultilineID", {
+        Title = "Multiline Input",
+        Default = "",
+        MultiLine = true,
+        MaxLength = 500,
+        Callback = function(Value)
+            print("Multiline:", Value)
+        end
+    })
+
+    local MyColorpicker = Tabs.Elements:AddColorpicker("ColorpickerID", {
+        Title = "Color Picker",
+        Description = "Pick a color",
+        Default = Color3.fromRGB(96, 205, 255),
+        Callback = function(Value)
+            print("Color:", Value)
+        end
+    })
+
+    MyColorpicker:OnChanged(function(Value)
+        print("Color OnChanged:", Value)
+    end)
+
+    MyColorpicker:SetValueRGB(Color3.fromRGB(255, 0, 0))
+
+    local TransparentColor = Tabs.Elements:AddColorpicker("TransColorID", {
+        Title = "Color with Transparency",
+        Default = Color3.fromRGB(255, 255, 255),
+        Transparency = 0.5,
+        Callback = function(Value)
+            print("Color with alpha:", Value)
+        end
+    })
+
+    TransparentColor:SetValueRGB(Color3.fromRGB(0, 255, 0), 0.8)
+
+    local MyKeybind = Tabs.Elements:AddKeybind("KeybindID", {
+        Title = "Keybind Toggle",
+        Mode = "Toggle",
+        Default = "E",
+        Callback = function(Value)
+            print("Keybind activated:", Value)
+        end,
+        ChangedCallback = function(New)
+            print("Keybind key changed to:", New)
+        end
+    })
+
+    MyKeybind:OnClick(function()
+        print("Keybind OnClick triggered")
+    end)
+
+    MyKeybind:OnChanged(function(Value)
+        print("Keybind OnChanged:", Value)
+    end)
+
+    MyKeybind:SetValue("F", "Hold")
+
+    local HoldKeybind = Tabs.Elements:AddKeybind("HoldKeybindID", {
+        Title = "Keybind Hold",
+        Mode = "Hold",
+        Default = "LeftControl"
+    })
+
+    local AlwaysKeybind = Tabs.Elements:AddKeybind("AlwaysKeybindID", {
+        Title = "Keybind Always",
+        Mode = "Always",
+        Default = "None"
+    })
+
+    local Section3 = Tabs.Dropdowns:AddSection("Dropdown Variants")
+
+    local SimpleDropdown = Tabs.Dropdowns:AddDropdown("SimpleDropdownID", {
+        Title = "Simple Dropdown",
+        Description = "Select one option",
+        Values = {"Option 1", "Option 2", "Option 3", "Option 4", "Option 5"},
+        Default = "Option 1",
+        Callback = function(Value)
+            print("Selected:", Value)
+        end
+    })
+
+    SimpleDropdown:OnChanged(function(Value)
+        print("Dropdown OnChanged:", Value)
+    end)
+
+    SimpleDropdown:SetValue("Option 3")
+
+    local MultiDropdown = Tabs.Dropdowns:AddDropdown("MultiDropdownID", {
+        Title = "Multi Selection Dropdown",
+        Values = {"Apple", "Banana", "Orange", "Grape", "Mango", "Pineapple", "Watermelon"},
+        Multi = true,
+        Default = {"Apple", "Banana"},
+        Callback = function(Value)
+            local selected = {}
+            for item, bool in pairs(Value) do
+                if bool then
+                    table.insert(selected, item)
+                end
+            end
+            print("Multi selected:", table.concat(selected, ", "))
+        end
+    })
+
+    MultiDropdown:SetValue({["Apple"] = true, ["Orange"] = true, ["Mango"] = true})
+
+    local AllowNullDropdown = Tabs.Dropdowns:AddDropdown("NullDropID", {
+        Title = "Dropdown with Null",
+        Values = {"Red", "Green", "Blue"},
+        AllowNull = true,
+        Callback = function(Value)
+            print("Value (can be nil):", Value)
+        end
+    })
+
+    local LargeList = {}
+    for i = 1, 100 do
+        table.insert(LargeList, "Item " .. i)
+    end
+
+    local SearchableDropdown = Tabs.Dropdowns:AddDropdown("SearchDropID", {
+        Title = "Searchable Dropdown (100 items)",
+        Values = LargeList,
+        Searchable = true,
+        Default = "Item 1",
+        Callback = function(Value)
+            print("Search selected:", Value)
+        end
+    })
+
+    local SearchMulti = Tabs.Dropdowns:AddDropdown("SearchMultiID", {
+        Title = "Searchable Multi Dropdown",
+        Values = LargeList,
+        Multi = true,
+        Searchable = true,
+        Default = {"Item 1", "Item 5", "Item 10"},
+        Callback = function(Value)
+            local count = 0
+            for _, bool in pairs(Value) do
+                if bool then count = count + 1 end
+            end
+            print("Selected items count:", count)
+        end
+    })
+
+    local DynamicDropdown = Tabs.Dropdowns:AddDropdown("DynamicDropID", {
+        Title = "Dynamic Dropdown",
+        Values = {"Initial 1", "Initial 2"},
+        Default = "Initial 1"
+    })
+
+    task.spawn(function()
+        wait(3)
+        local newValues = {"Updated 1", "Updated 2", "Updated 3"}
+        DynamicDropdown:SetValues(newValues)
+        DynamicDropdown:SetValue("Updated 2")
+    end)
+
+    local PlayerDropdown = Tabs.Dropdowns:AddDropdown("PlayerDropID", {
+        Title = "Players List (Auto-Update)",
+        Values = {}
+    })
+
+    task.spawn(function()
+        while true do
+            local players = {}
+            for _, player in pairs(game.Players:GetPlayers()) do
+                table.insert(players, player.Name)
+            end
+            PlayerDropdown:SetValues(players)
+            wait(5)
+        end
+    end)
+
+    local Section4 = Tabs.Advanced:AddSection("Advanced Features")
+
+    Tabs.Advanced:AddButton({
+        Title = "Success Notification",
+        Callback = function()
+            Fluent:Notify({
+                Title = "Success",
+                Content = "Operation completed successfully",
+                Duration = 5
+            })
+        end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Warning Notification",
+        Callback = function()
+            Fluent:Notify({
+                Title = "Warning",
+                Content = "This is a warning message",
+                SubContent = "Additional warning details",
+                Duration = 7
+            })
+        end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Error Notification",
+        Callback = function()
+            Fluent:Notify({
+                Title = "Error",
+                Content = "Something went wrong",
+                SubContent = "Check console for details",
+                Duration = 10
+            })
+        end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Get All Values",
+        Callback = function()
+            print("=== Current Values ===")
+            print("Toggle:", Fluent.Options.UniqueToggleID:GetValue())
+            print("Slider:", Fluent.Options.UniqueSliderID:GetValue())
+            print("Input:", Fluent.Options.UniqueInputID:GetValue())
+            print("Dropdown:", Fluent.Options.SimpleDropdownID:GetValue())
+            print("Colorpicker:", Fluent.Options.ColorpickerID:GetValue())
+            print("Keybind:", Fluent.Options.KeybindID:GetValue())
+        end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Set All Values",
+        Callback = function()
+            Fluent.Options.UniqueToggleID:SetValue(true)
+            Fluent.Options.UniqueSliderID:SetValue(88)
+            Fluent.Options.UniqueInputID:SetValue("Programmatically set")
+            Fluent.Options.SimpleDropdownID:SetValue("Option 4")
+            Fluent.Options.ColorpickerID:SetValueRGB(Color3.fromRGB(255, 165, 0))
+        end
+    })
+
+    local VisibilityToggle = Tabs.Advanced:AddToggle("VisToggleID", {
+        Title = "Show/Hide Elements",
+        Default = true
+    })
+
+    local TestElement = Tabs.Advanced:AddButton({
+        Title = "Visible Element",
+        Callback = function()
+            print("Visible element clicked")
+        end
+    })
+
+    VisibilityToggle:OnChanged(function(Value)
+        TestElement:Visible(Value)
+    end)
+
+    local TitleChangeButton = Tabs.Advanced:AddButton({
+        Title = "Original Title",
+        Callback = function() end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Change Button Title",
+        Callback = function()
+            TitleChangeButton:SetTitle("Title Changed!")
+        end
+    })
+
+    local DescElement = Tabs.Advanced:AddButton({
+        Title = "Element with Description",
+        Description = "Original description",
+        Callback = function() end
+    })
+
+    Tabs.Advanced:AddButton({
+        Title = "Change Description",
+        Callback = function()
+            DescElement:SetDesc("Description updated!")
+        end
+    })
