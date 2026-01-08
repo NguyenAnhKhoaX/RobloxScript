@@ -1,0 +1,413 @@
+-- ts file was generated at discord.gg/25ms
+
+
+local vu1 = game:GetService('HttpService')
+local vu2 = {
+    Folder = 'FluentSettings',
+    Ignore = {},
+}
+local v28 = {
+    Toggle = {
+        Save = function(p3, p4)
+            return {
+                type = 'Toggle',
+                idx = p3,
+                value = p4.Value,
+            }
+        end,
+        Load = function(p5, p6)
+            if vu2.Options[p5] then
+                vu2.Options[p5]:SetValue(p6.value)
+            end
+        end,
+    },
+    Slider = {
+        Save = function(p7, p8)
+            return {
+                type = 'Slider',
+                idx = p7,
+                value = tostring(p8.Value),
+            }
+        end,
+        Load = function(p9, p10)
+            if vu2.Options[p9] then
+                vu2.Options[p9]:SetValue(p10.value)
+            end
+        end,
+    },
+    Dropdown = {
+        Save = function(p11, p12)
+            return {
+                type = 'Dropdown',
+                idx = p11,
+                value = p12.Value,
+                mutli = p12.Multi,
+            }
+        end,
+        Load = function(p13, p14)
+            if vu2.Options[p13] then
+                vu2.Options[p13]:SetValue(p14.value)
+            end
+        end,
+    },
+    Colorpicker = {
+        Save = function(p15, p16)
+            local v17 = {
+                type = 'Colorpicker',
+                idx = p15,
+                value = p16.Value:ToHex(),
+                transparency = p16.Transparency,
+            }
+
+            return v17
+        end,
+        Load = function(p18, p19)
+            if vu2.Options[p18] then
+                vu2.Options[p18]:SetValueRGB(Color3.fromHex(p19.value), p19.transparency)
+            end
+        end,
+    },
+    Keybind = {
+        Save = function(p20, p21)
+            return {
+                type = 'Keybind',
+                idx = p20,
+                mode = p21.Mode,
+                key = p21.Value,
+            }
+        end,
+        Load = function(p22, p23)
+            if vu2.Options[p22] then
+                vu2.Options[p22]:SetValue(p23.key, p23.mode)
+            end
+        end,
+    },
+    Input = {
+        Save = function(p24, p25)
+            return {
+                type = 'Input',
+                idx = p24,
+                text = p25.Value,
+            }
+        end,
+        Load = function(p26, p27)
+            if vu2.Options[p26] and type(p27.text) == 'string' then
+                vu2.Options[p26]:SetValue(p27.text)
+            end
+        end,
+    },
+}
+
+vu2.Parser = v28
+
+function vu2.SetIgnoreIndexes(p29, p30)
+    local v31 = next
+    local v32 = nil
+
+    while true do
+        local v33
+
+        v32, v33 = v31(p30, v32)
+
+        if v32 == nil then
+            break
+        end
+
+        p29.Ignore[v33] = true
+    end
+end
+function vu2.SetFolder(p34, p35)
+    p34.Folder = p35
+
+    p34:BuildFolderTree()
+end
+function vu2.Save(p36, p37)
+    if not p37 then
+        return false, 'no config file is selected'
+    end
+
+    local v38 = p36.Folder .. '/settings/' .. p37 .. '.json'
+    local v39 = next
+    local v40 = vu2.Options
+    local v41 = nil
+    local v42 = {
+        objects = {}
+    }
+
+    while true do
+        local v43
+
+        v41, v43 = v39(v40, v41)
+
+        if v41 == nil then
+            break
+        end
+        if p36.Parser[v43.Type] and not p36.Ignore[v41] then
+            table.insert(v42.objects, p36.Parser[v43.Type].Save(v41, v43))
+        end
+    end
+
+    local v44, v45 = pcall(vu1.JSONEncode, vu1, v42)
+
+    if not v44 then
+        return false, 'failed to encode data'
+    end
+
+    writefile(v38, v45)
+
+    return true
+end
+function vu2.Load(pu46, p47)
+    if not p47 then
+        return false, 'no config file is selected'
+    end
+
+    local v48 = pu46.Folder .. '/settings/' .. p47 .. '.json'
+
+    if not isfile(v48) then
+        return false, 'invalid file'
+    end
+
+    local v49, v50 = pcall(vu1.JSONDecode, vu1, readfile(v48))
+
+    if not v49 then
+        return false, 'decode error'
+    end
+
+    local v51 = next
+    local v52 = v50.objects
+    local v53 = nil
+
+    while true do
+        local vu54
+
+        v53, vu54 = v51(v52, v53)
+
+        if v53 == nil then
+            break
+        end
+        if pu46.Parser[vu54.type] then
+            task.spawn(function()
+                pu46.Parser[vu54.type].Load(vu54.idx, vu54)
+            end)
+        end
+    end
+
+    return true
+end
+function vu2.IgnoreThemeSettings(p55)
+    p55:SetIgnoreIndexes({
+        'InterfaceTheme',
+        'AcrylicToggle',
+        'TransparentToggle',
+        'MenuKeybind',
+    })
+end
+function vu2.BuildFolderTree(p56)
+    local v57 = {
+        p56.Folder,
+        p56.Folder .. '/settings',
+    }
+
+    for v58 = 1, # v57 do
+        local v59 = v57[v58]
+
+        if not isfolder(v59) then
+            makefolder(v59)
+        end
+    end
+end
+function vu2.RefreshConfigList(p60)
+    local v61 = listfiles(p60.Folder .. '/settings')
+    local v62 = {}
+
+    for v63 = 1, # v61 do
+        local v64 = v61[v63]
+
+        if v64:sub(- 5) == '.json' then
+            local v65 = v64:find('.json', 1, true)
+            local v66 = v64:sub(v65, v65)
+            local v67 = v65
+
+            while v66 ~= '/' and (v66 ~= '\\' and v66 ~= '') do
+                v65 = v65 - 1
+                v66 = v64:sub(v65, v65)
+            end
+
+            if v66 == '/' or v66 == '\\' then
+                local v68 = v64:sub(v65 + 1, v67 - 1)
+
+                if v68 ~= 'options' then
+                    table.insert(v62, v68)
+                end
+            end
+        end
+    end
+
+    return v62
+end
+function vu2.SetLibrary(p69, p70)
+    p69.Library = p70
+    p69.Options = p70.Options
+end
+function vu2.LoadAutoloadConfig(p71)
+    if isfile(p71.Folder .. '/settings/autoload.txt') then
+        local v72 = readfile(p71.Folder .. '/settings/autoload.txt')
+        local v73, v74 = p71:Load(v72)
+
+        if not v73 then
+            return p71.Library:Notify({
+                Title = 'Interface',
+                Content = 'Config loader',
+                SubContent = 'Failed to load autoload config: ' .. v74,
+                Duration = 7,
+            })
+        end
+
+        p71.Library:Notify({
+            Title = 'Interface',
+            Content = 'Config loader',
+            SubContent = string.format('Auto loaded config %q', v72),
+            Duration = 7,
+        })
+    end
+end
+function vu2.BuildConfigSection(pu75, p76)
+    assert(pu75.Library, 'Must set SaveManager.Library')
+
+    local v77 = p76:AddSection('Configuration')
+
+    v77:AddInput('SaveManager_ConfigName', {
+        Title = 'Config name',
+    })
+    v77:AddDropdown('SaveManager_ConfigList', {
+        Title = 'Config list',
+        Values = pu75:RefreshConfigList(),
+        AllowNull = true,
+    })
+    v77:AddButton({
+        Title = 'Create config',
+        Callback = function()
+            local v78 = vu2.Options.SaveManager_ConfigName.Value
+
+            if v78:gsub(' ', '') == '' then
+                return pu75.Library:Notify({
+                    Title = 'Interface',
+                    Content = 'Config loader',
+                    SubContent = 'Invalid config name (empty)',
+                    Duration = 7,
+                })
+            end
+
+            local v79, v80 = pu75:Save(v78)
+
+            if not v79 then
+                return pu75.Library:Notify({
+                    Title = 'Interface',
+                    Content = 'Config loader',
+                    SubContent = 'Failed to save config: ' .. v80,
+                    Duration = 7,
+                })
+            end
+
+            pu75.Library:Notify({
+                Title = 'Interface',
+                Content = 'Config loader',
+                SubContent = string.format('Created config %q', v78),
+                Duration = 7,
+            })
+            vu2.Options.SaveManager_ConfigList:SetValues(pu75:RefreshConfigList())
+            vu2.Options.SaveManager_ConfigList:SetValue(nil)
+        end,
+    })
+    v77:AddButton({
+        Title = 'Load config',
+        Callback = function()
+            local v81 = vu2.Options.SaveManager_ConfigList.Value
+            local v82, v83 = pu75:Load(v81)
+
+            if not v82 then
+                return pu75.Library:Notify({
+                    Title = 'Interface',
+                    Content = 'Config loader',
+                    SubContent = 'Failed to load config: ' .. v83,
+                    Duration = 7,
+                })
+            end
+
+            pu75.Library:Notify({
+                Title = 'Interface',
+                Content = 'Config loader',
+                SubContent = string.format('Loaded config %q', v81),
+                Duration = 7,
+            })
+        end,
+    })
+    v77:AddButton({
+        Title = 'Overwrite config',
+        Callback = function()
+            local v84 = vu2.Options.SaveManager_ConfigList.Value
+            local v85, v86 = pu75:Save(v84)
+
+            if not v85 then
+                return pu75.Library:Notify({
+                    Title = 'Interface',
+                    Content = 'Config loader',
+                    SubContent = 'Failed to overwrite config: ' .. v86,
+                    Duration = 7,
+                })
+            end
+
+            pu75.Library:Notify({
+                Title = 'Interface',
+                Content = 'Config loader',
+                SubContent = string.format('Overwrote config %q', v84),
+                Duration = 7,
+            })
+        end,
+    })
+    v77:AddButton({
+        Title = 'Refresh list',
+        Callback = function()
+            vu2.Options.SaveManager_ConfigList:SetValues(pu75:RefreshConfigList())
+            vu2.Options.SaveManager_ConfigList:SetValue(nil)
+        end,
+    })
+
+    local vu87 = nil
+
+    vu87 = v77:AddButton({
+        Title = 'Set as autoload',
+        Description = 'Current autoload config: none',
+        Callback = function()
+            local v88 = vu2.Options.SaveManager_ConfigList.Value
+
+            writefile(pu75.Folder .. '/settings/autoload.txt', v88)
+            vu87:SetDesc('Current autoload config: ' .. v88)
+            pu75.Library:Notify({
+                Title = 'Interface',
+                Content = 'Config loader',
+                SubContent = string.format('Set %q to auto load', v88),
+                Duration = 7,
+            })
+        end,
+    })
+
+    if isfile(pu75.Folder .. '/settings/autoload.txt') then
+        local v89 = readfile(pu75.Folder .. '/settings/autoload.txt')
+        local v90 = vu87
+
+        vu87.SetDesc(v90, 'Current autoload config: ' .. v89)
+    end
+
+    vu2:SetIgnoreIndexes({
+        'SaveManager_ConfigList',
+        'SaveManager_ConfigName',
+    })
+end
+
+local v91 = vu2
+
+vu2.BuildFolderTree(v91)
+
+return vu2
